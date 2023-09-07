@@ -1,0 +1,36 @@
+[
+  {
+    "id": 1,
+    "label": "USD",
+    "icon": "u",
+    "country": "usa"
+  },
+  {
+    "id": 2,
+    "label": "RUB",
+    "icon": "r",
+    "country": "russia"
+  },
+  {
+    "id": 3,
+    "label": "EUR",
+    "icon": "e",
+    "country": "europe"
+  },
+  {
+    "id": 4,
+    "label": "IDR",
+    "icon": "i",
+    "country": "indonesia"
+  },
+  {
+    "id": 5,
+    "label": "TRY",
+    "icon": "turkey"
+  },
+  {
+    "id": 6,
+    "label": "CAD",
+    "icon": "canada"
+  }
+]
