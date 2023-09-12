@@ -8,7 +8,6 @@ function App() {
   return (
     <Container>
         <MainPage/>
-
     </Container>
   )
 }

@@ -1,117 +1,190 @@
-import {Autocomplete, Box, Button, TextField} from "@mui/material";
-import {CURRENCIES_DATA} from "../../__data__";
-import {useState} from "react";
-import axios, {AxiosRequestConfig} from "axios";
-import {apis} from "../../helpers/apis/apis";
+import {Autocomplete, Box, Button, TextField, InputAdornment} from "@mui/material";
+import { useAppDispatch, useAppSelector } from "../../ducks/hooks";
+import { 
+    initCurrencies, 
+    initFromCurrency, 
+    changeFromCurrency,
+    changeToCurrency,
+    addCurrency,
+    deleteCurrency,
+    reverseCurrencies,
+    exchangeRatesThunk,
+    addAmount
+} from "../../ducks/converter";
+    
+import React, {useEffect, useState, useTransition, useMemo} from "react";
+import { CurrencyDto } from "../../types/dto/currencyDto";
+import { useThrottle } from "../../hooks/useThrottle";
+
+export function MainPage() {
+    const dispatch = useAppDispatch()
+
+    const [inputValue, setInputValue] = useState<string>('');
+    const [isPending, startTransition] = useTransition();
 
 
+    const throttledInputValue = useThrottle<string>(inputValue, 500);
 
-export function MainPage(props) {
-
-    const [data, setData] = useState(CURRENCIES_DATA);
-
-    const [currency, setCurrency] = useState([]);
-
-    const [total, setTotal] = useState([]);
-
-    const test  = (e: any, values) => {
-        setCurrency(prev => [...prev, values])
-    }
+    const {
+        currencies, 
+        allCurrencies, 
+        fromCurrency,
+        total
+        } = useAppSelector(store => store.converter)
 
 
-    const onBlur = (e) => {
+    useEffect(() => {
+        dispatch(initFromCurrency())
+        dispatch(initCurrencies())
 
+    }, [])
 
-        var url = "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/currency";
-        var token = "ef558fb92da0f88f2902a64a13a40766d0bf28f0";
-        var query = "все";
+    useEffect(() => {
 
-        var options = {
-            method: "POST",
-            mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": "Token " + token
-            },
-            body: JSON.stringify({query: query})
+        const amount = parseInt(throttledInputValue);
+
+        if(typeof amount === "number") {
+            dispatch(addAmount(amount))
         }
 
-        fetch(url, options as any)
-            .then(response => response.text())
-            .then(result => console.log(result))
-            .catch(error => console.log("error", error));
+        if(throttledInputValue) {
+            startTransition(() => { 
+                let paramsValue = '';
+                currencies.forEach((el,index) => {
+                    if(index !== currencies.length - 1) {
+                        paramsValue += el.label + ','
+                    }else {
+                        paramsValue += el.label
+                    }
+                })
+                dispatch(exchangeRatesThunk({symbols: paramsValue, base: fromCurrency?.label as string}))
+            })
+            
+        }
+        
 
-        // setTotal([])
-        //
-        // const symbolsArr = currency.map((el,index) => {
-        //
-        //     if(index !== 0) {
-        //         return el.label
-        //     }
-        //     else {
-        //         return
-        //     }
-        //
-        // })
-        //
-        // const symbols = symbolsArr.join().replace(/,/, '%2C%20')
-        //
-        // console.log(symbols)
-        //
-        // axios.get(apis.latest, {
-        //     headers: {
-        //         "apikey": "riAe6q6igEyZQkDFkw68VXMlEoPhHQXT"
-        //     },
-        //     params: {
-        //         symbols,
-        //         base: currency[0].label
-        //     }
-        // }).then(response => {
-        //
-        //
-        //
-        //     for(const  key in response.data.rates) {
-        //
-        //         const total = e.target.value * response.data.rates[key]
-        //
-        //
-        //         setTotal(prev => [prev,  total])
-        //
-        //
-        //     }
-        // })
+    }, [throttledInputValue, currencies])
 
 
+    const totalList = useMemo(() => {
+        return (
+            <ul>
+                {
+                    total.map((el,index) => <li key={index}>{el.sum} {el.currency}</li>)
+                }
+            
+            </ul>
+        )
+    }, [total])
+
+
+    const changeFromCurrencyFn = (event: React.SyntheticEvent<Element, Event>, value: CurrencyDto | null) => {
+        if(value) {
+            dispatch(changeFromCurrency(value))
+        }
     }
 
+    const changeToCurrencyFn = (event: React.SyntheticEvent<Element, Event>, value: CurrencyDto | null, index: number) => {
+        if(value) { 
+            dispatch(changeToCurrency({value, index}))
+        }
+    }
+
+    const addCurrencyFn = () => {
+        dispatch(addCurrency())
+    }
+
+    const deleteCurrencyFn = (id:number) => {
+        dispatch(deleteCurrency(id))
+    }
+    
+
+    const reverseCurrenciesFn = () => {
+        if(fromCurrency) {
+            dispatch(reverseCurrencies(fromCurrency))
+        }
+        
+    }
+    
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = event.target.value;
+        setInputValue(newValue);
+      };
+
+
+
+      
 
     return (
         <Box sx={{ flexDirection: 'row' }}>
 
-            <TextField fullWidth label="fullWidth" id="fullWidth" onBlur={onBlur}/>
+            <TextField fullWidth label="fullWidth" id="fullWidth" onChange={handleChange}/>
+            
+                <Autocomplete
+                                
+                                id="combo-box-demo"
+                                options={allCurrencies}
+                                value={fromCurrency}
+                                sx={{ width: 300 }}
+                                onChange={changeFromCurrencyFn}
+                                renderInput={(params) => (
+                                <>
+                                    
+                                    <TextField {...params} label="from">
+                                        <InputAdornment position="start">{fromCurrency?.icon}</InputAdornment>
 
-            <Autocomplete
-                onChange={test}
-                id="combo-box-demo"
-                options={data}
-                value={currency[0]}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="from" />}
-            />
-            <Button variant="contained">reverse</Button>
+                                    </TextField>
+                                </>
+                                
+                                )}
+                            />
 
-            <Autocomplete
-                onChange={test}
-                id="combo-box-demo"
-                options={data}
-                value={currency[1]}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="to" />}
-            />
+            <Button 
+            variant="contained" 
+            onClick={reverseCurrenciesFn}
+            
+        >reverse</Button>
+
+            {
+                currencies.map((currency, index) => (
+                    <Box key={currency.id}>
+                    <Autocomplete
+                                
+                                id="combo-box-demo"
+                                options={allCurrencies}
+                                value={currency}
+                                onChange={(event, value) => changeToCurrencyFn(event, value, index)}
+                                sx={{ width: 300 }}
+                                renderInput={(params) => <TextField {...params} label="to" />}
+                            />
+
+                    {index > 0 
+                    && 
+                    
+                    <Button variant="contained" 
+                         onClick={() => deleteCurrencyFn(currency.id)}>
+                        remove</Button>}
+                    
+                    </Box>
+                            
+                            
+
+            ))}
+
+            <div>
+            <Button 
+                        
+                            variant="contained" 
+                            onClick={addCurrencyFn}>
+                                add currency
+                                </Button>
+            </div>
+            
 
 
-            {total.map(el => <h1>{el}</h1>)}
+
+            {totalList}
 
         </Box>
     );
