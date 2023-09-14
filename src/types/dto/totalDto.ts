@@ -1,4 +1,5 @@
 export interface TotalDto {
-    currency: string,
+    currency: string
     sum: number
+    country: string | null
 }

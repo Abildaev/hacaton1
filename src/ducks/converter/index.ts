@@ -8,15 +8,17 @@ import { exchangeRatesThunk } from "./thunks";
 export const converterReducer = converterSlice.reducer
 
 export const {
-    initCurrencies, 
-    initFromCurrency, 
+    initCurrencies,
+    initFromCurrency,
     changeFromCurrency,
     changeToCurrency,
     addCurrency,
     deleteCurrency,
     reverseCurrencies,
     resetTotal,
-    addAmount
+    addAmount,
+    onLoading,
+    offLoading
 
 } = converterSlice.actions
 

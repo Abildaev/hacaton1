@@ -2,35 +2,43 @@
   {
     "id": 1,
     "label": "USD",
-    "icon": "u",
-    "country": "usa"
+    "name": "US Dollar",
+    "icon": "us",
+    "country": "http://www.world-globe.ru/files/flags/united-states_l.png"
   },
   {
     "id": 2,
     "label": "RUB",
-    "icon": "r",
-    "country": "russia"
+    "name": "Russian Ruble",
+    "icon": "ru",
+    "country": "http://www.world-globe.ru/files/flags/russia_l.png"
   },
   {
     "id": 3,
     "label": "EUR",
-    "icon": "e",
-    "country": "europe"
+    "name": "Euro",
+    "icon": "eu",
+    "country": "https://w7.pngwing.com/pngs/1005/998/png-transparent-eu-european-union-flag-icon.png"
   },
   {
     "id": 4,
     "label": "IDR",
-    "icon": "i",
-    "country": "indonesia"
+    "name": "Indonesian Rupiah",
+    "icon": "id",
+    "country": "http://www.world-globe.ru/files/flags/indonesia_l.png"
   },
   {
     "id": 5,
     "label": "TRY",
-    "icon": "turkey"
+    "name": "Turkish Lira",
+    "icon": "tr",
+    "country": "http://www.world-globe.ru/files/flags/turkey_l.png"
   },
   {
     "id": 6,
     "label": "CAD",
-    "icon": "canada"
+    "name": "Canadian Dollar",
+    "icon": "ca",
+    "country": "http://www.world-globe.ru/files/flags/canada_l.png"
   }
 ]

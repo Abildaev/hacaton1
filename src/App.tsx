@@ -1,5 +1,5 @@
 import './App.css'
-import {Container} from "@mui/material";
+import {Container} from "@mantine/core";
 import {MainPage} from "./pages/mainPage/MainPage";
 
 function App() {
